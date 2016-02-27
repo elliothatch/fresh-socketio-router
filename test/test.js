@@ -10,25 +10,40 @@ console.log('listening on port 3000');
 
 var freshSocketRouter = require('../lib');
 
-var router = freshSocketRouter.Router();
-router.use(function(req, res, next) {
+var socketRouter = freshSocketRouter();
+socketRouter.use(function(req, res, next) {
 	console.log('my middleware');
 	req.code = 'the code';
 	next();
 });
 
-router.get('/hello', function(req, res) {
+socketRouter.get('/hello', function(req, res) {
 	var code = req.code;
 	console.log('hello handler');
-	res.status(200).send('world ' + code);
+	res.status(200).send('world ' + req.body + code);
 });
 
 var goodbyeRouter = freshSocketRouter.Router();
 
 goodbyeRouter.get('/sam', function(req, res) {
-	res.status(200).send('goodbye sam ' + req.code);
+	console.log('hi');
+	console.log(JSON.stringify(req));
+	console.log('hey');
+	res.status(200).send('goodbye sam ' + req.code + 'color:' +
+			req.body.color + ' position:' + req.body.pos.x + ',' + req.body.pos.y +
+			' ' + req.body.pos.x + req.body.pos.y);
 });
 
-router.use('/goodbye', goodbyeRouter);
+socketRouter.use('/goodbye', goodbyeRouter);
 
-io.use(freshSocketRouter(router));
+socketRouter.get('/bad', function(req, res, next) {
+	throw new Error('bad');
+});
+socketRouter.get('/bad2', function(req, res, next) {
+	next(new Error('bad2'));
+});
+socketRouter.get('/bad3', function(req, res, next) {
+	next();
+});
+
+io.use(socketRouter);

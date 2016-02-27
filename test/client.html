@@ -12,13 +12,25 @@
 <body>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io('http://localhost:3000');
-  socket.on('/hello', function (data) {
-    console.log('hello', data);
-  });
+	var socket = io('http://localhost:3000');
+	socket.on('/hello', function (data) {
+		console.log('hello', data);
+	});
+	socket.on('/goodbye/sam', function(data) {
+		console.log('goodbye/sam', data);
+	});
+	socket.on('/goodbye/elliot', function(data) {
+		console.log('goodbye/elliot', data);
+	});
 
-  socket.emit('/hello', { body: 10 });
-  console.log('sent hello');
+
+	socket.emit('/hello', { body: 10 });
+	console.log('sent hello');
+	socket.emit('/goodbye/sam', { body: {color: 'blue', pos: {x: 20, y: 30} }});
+	socket.emit('/goodbye/elliot', { body: 30 });
+	socket.emit('/bad');
+	socket.emit('/bad2');
+	socket.emit('/bad3');
 </script>
 </body>
 </html>
