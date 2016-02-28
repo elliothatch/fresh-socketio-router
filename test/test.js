@@ -27,7 +27,7 @@ var goodbyeRouter = freshSocketRouter.Router();
 
 goodbyeRouter.get('/sam', function(req, res) {
 	console.log('hi');
-	console.log(JSON.stringify(req));
+	console.log(require('util').inspect(req));
 	console.log('hey');
 	res.status(200).send('goodbye sam ' + req.code + 'color:' +
 			req.body.color + ' position:' + req.body.pos.x + ',' + req.body.pos.y +
