@@ -10,7 +10,7 @@ console.log('listening on port 3000');
 
 var freshSocketRouter = require('../lib');
 
-var socketRouter = freshSocketRouter();
+var socketRouter = freshSocketRouter.Router();
 socketRouter.use(function(req, res, next) {
 	console.log('my middleware');
 	req.code = 'the code';
@@ -26,12 +26,12 @@ socketRouter.get('/hello', function(req, res) {
 var goodbyeRouter = freshSocketRouter.Router();
 
 goodbyeRouter.get('/sam', function(req, res) {
-	console.log('hi');
-	console.log(require('util').inspect(req));
-	console.log('hey');
+	//console.log('hi');
+	//console.log(require('util').inspect(req));
+	//console.log('hey');
 	res.status(200).send('goodbye sam ' + req.code + 'color:' +
 			req.body.color + ' position:' + req.body.pos.x + ',' + req.body.pos.y +
-			' ' + req.body.pos.x + req.body.pos.y);
+			' ' + (req.body.pos.x + req.body.pos.y));
 });
 
 socketRouter.use('/goodbye', goodbyeRouter);
@@ -40,10 +40,16 @@ socketRouter.get('/bad', function(req, res, next) {
 	throw new Error('bad');
 });
 socketRouter.get('/bad2', function(req, res, next) {
+	res.bad2 = 'uh oh';
 	next(new Error('bad2'));
 });
 socketRouter.get('/bad3', function(req, res, next) {
 	next();
 });
 
-io.use(socketRouter);
+socketRouter.use(function(err, req, res, next) {
+	console.error('error handler: ' + req.url);
+	res.status('501').send('something bad');
+});
+
+io.use(freshSocketRouter(socketRouter));

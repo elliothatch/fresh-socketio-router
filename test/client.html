@@ -3,10 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-
-  <title>The HTML5 Herald</title>
-  <meta name="description" content="The HTML5 Herald">
-  <meta name="author" content="SitePoint">
+  <title>router test</title>
 </head>
 
 <body>
@@ -37,9 +34,9 @@
 	console.log('sent hello');
 	socket.emit('/goodbye/sam', { body: {color: 'blue', pos: {x: 20, y: 30} }});
 	socket.emit('/goodbye/elliot', { body: 30 });
-	//socket.emit('/bad');
-	//socket.emit('/bad2');
-	//socket.emit('/bad3');
+	socket.emit('/bad', {});
+	socket.emit('/bad2', {});
+	socket.emit('/bad3', {});
 </script>
 </body>
 </html>
