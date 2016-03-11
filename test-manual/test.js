@@ -23,6 +23,10 @@ socketRouter.get('/hello', function(req, res) {
 	res.status(200).send('world ' + req.body + code);
 });
 
+socketRouter.post('/hello', function(req, res) {
+	res.status(200).send('world ' + req.body + req.method);
+});
+
 var goodbyeRouter = freshSocketRouter.Router();
 
 goodbyeRouter.get('/sam', function(req, res) {
@@ -37,7 +41,9 @@ goodbyeRouter.get('/sam', function(req, res) {
 socketRouter.use('/goodbye', goodbyeRouter);
 
 socketRouter.get('/bad', function(req, res, next) {
-	throw new Error('bad');
+	var err = new Error('bad');
+	err.status = '511';
+	throw err;
 });
 socketRouter.get('/bad2', function(req, res, next) {
 	res.bad2 = 'uh oh';
@@ -47,9 +53,23 @@ socketRouter.get('/bad3', function(req, res, next) {
 	next();
 });
 
-socketRouter.use(function(err, req, res, next) {
-	console.error('error handler: ' + req.url);
-	res.status('501').send('something bad');
+socketRouter.get('/users/:user', function(req, res) {
+	res.status(200).send('got user ' + req.params.user);
 });
+
+var r = [1, 4, 9, 16, 25, 36, 49];
+var index = 0;
+socketRouter.get('/count/increment', function(req, res) {
+	var val = r[index];
+	index++;
+	setTimeout(function() {
+		res.status(200).send(val);
+	}, (7-index) * 1000);
+});
+
+//socketRouter.use(function(err, req, res, next) {
+	//console.error('error handler: ' + req.url);
+	//res.status('501').send('something bad');
+//});
 
 io.use(freshSocketRouter(socketRouter));

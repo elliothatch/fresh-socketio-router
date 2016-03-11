@@ -28,15 +28,29 @@
 	socket.on('/bad3', function(data) {
 		console.log('bad3', data);
 	});
+	socket.on('/users/elliot', function(data) {
+		console.log('users/elliot', data);
+	});
+	socket.on('/count/increment', function(data) {
+		console.log('count/increment', data);
+	});
 
 
 	socket.emit('/hello', { body: 10 });
+	socket.emit('/count/increment', {});
+	socket.emit('/hello', { method: 'post', body: 20 });
 	console.log('sent hello');
 	socket.emit('/goodbye/sam', { body: {color: 'blue', pos: {x: 20, y: 30} }});
+	socket.emit('/count/increment', {});
 	socket.emit('/goodbye/elliot', { body: 30 });
-	socket.emit('/bad', {});
-	socket.emit('/bad2', {});
-	socket.emit('/bad3', {});
+	//socket.emit('/bad', {});
+	//socket.emit('/bad2', {});
+	//socket.emit('/bad3', {});
+	socket.emit('/users/elliot', {});
+	socket.emit('/users/sam', {});
+	socket.emit('/count/increment', {});
+	socket.emit('/count/increment', {});
+	socket.emit('/count/increment', {});
 </script>
 </body>
 </html>
