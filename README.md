@@ -4,13 +4,13 @@
 
 # Socket Event API
 fresh-socketio-router establishes a transactional protocol for SocketIo events.
-Transactions are modeled after HTTP, but many of the fields are optional.
+Transactions are modeled after HTTP, but many of the HTTP fields are optional.
 Note that requests and responses are serialized to JSON. A binary protocol may be added in the future.
 
 All events emitted by the client to a handled route must contain undefined or an object, with
 the optional properties:
 
-```json
+```
 {
 	method (string:HTTP Method): default='GET',
 	headers (object--name-value string pairs)=undefined,
@@ -37,7 +37,7 @@ A request may either receive exactly one response as an event emitted to the sam
 url that the request was emitted to, or will time out.
 
 All responses have the following format.
-```json
+```
 {
 	status (number:HTTP Status),
 	headers (object--name-value string pairs),

@@ -20,6 +20,7 @@
   "homepage": "https://github.com/elliothatch/fresh-socketio-router",
   "devDependencies": {
     "blanket": "~1.1.7",
+    "bluebird": "^3.3.5",
     "chai": "~3.0.0",
     "coveralls": "~2.11.4",
     "express": "^4.13.4",

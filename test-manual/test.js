@@ -40,18 +40,44 @@ goodbyeRouter.get('/sam', function(req, res) {
 
 socketRouter.use('/goodbye', goodbyeRouter);
 
-socketRouter.get('/bad', function(req, res, next) {
+var badRouter = freshSocketRouter.Router();
+
+badRouter.get('/bad', function(req, res, next) {
 	var err = new Error('bad');
-	err.status = '511';
+	err.status = 511;
 	throw err;
 });
-socketRouter.get('/bad2', function(req, res, next) {
+badRouter.get('/bad2', function(req, res, next) {
 	res.bad2 = 'uh oh';
-	next(new Error('bad2'));
+	var err = new Error('bad2');
+	err.status = 512;
+	next(err);
 });
-socketRouter.get('/bad3', function(req, res, next) {
+badRouter.get('/bad3', function(req, res, next) {
 	next();
 });
+
+//badRouter.use(function(req, res, next) {
+	//console.log('bad middleware');
+	//next();
+//});
+
+//badRouter.use(function(err, req, res, next) {
+	//console.error('bad handler 1', err.message);
+	//if(res.bad2 === 'uh oh') {
+		//console.log('got uh oh');
+		//next(err);
+		//return;
+	//}
+	//res.status(err.status || 500).send(err.message || 'Internal Server Error');
+//});
+
+//badRouter.use(function(err, req, res, next) {
+	//console.error('bad handler 2', err.message);
+	//res.status(err.status || 500).send(err.message || 'Internal Server Error');
+//});
+
+socketRouter.use('/bad', badRouter);
 
 socketRouter.get('/users/:user', function(req, res) {
 	res.status(200).send('got user ' + req.params.user);
