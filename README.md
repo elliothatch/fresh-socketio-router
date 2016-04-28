@@ -1,6 +1,120 @@
 # fresh-socketio-router
 ## a middleware based router for socketio transactions
 
+# Usage
+
+## Server
+```js
+// socketio server setup
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+
+server.listen(3000);
+
+var freshSocketRouter = require('fresh-socketio-router');
+
+var myRouter = freshSocketRouter.Router();
+
+// middleware
+myRouter.use(function(req, res, next) {
+	req.myData = 'the data';
+	next();
+});
+
+myRouter.get('/echo', function(req, res) {
+	if(req.get('X-Uppercase') && typeof req.body === 'string') {
+		res.set('X-Was-Uppercased', true);
+		res.status(200).send(req.body.toUpperCase());
+	}
+	else {
+		res.status(200).send(req.body);
+	}
+});
+
+var helloRouter = freshSocketRouter.Router();
+helloRouter.get('/data', function(req, res, next) {
+	if(req.body && req.body.user === 'admin') {
+		res.status(200).send(req.myData);
+	}
+	else {
+		var err = new Error('Forbidden: wrong user');
+		err.status = 403;
+		next(err);
+	}
+});
+
+myRouter.use('/hello', helloRouter);
+
+// generic error handler
+myRouter.use(function(err, req, res, next) {
+	if(!err.status || err.status >= 500) {
+		console.error(err.stack);
+	}
+	res.status(err.status || 500).send(err.message || 'Internal Server Error');
+});
+
+io.use(freshSocketRouter(myRouter));
+```
+
+## Client
+```html
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	var socket = io('http://localhost:3000');
+	socket.on('/echo', function (res) {
+		// ...
+	});
+	socket.on('/hello/data', function (res) {
+		// ...
+	});
+
+	socket.emit('/echo', {
+		method: 'GET',
+		headers: {},
+		body: 'hello'
+	});
+	// response: {
+	// 	status: 200,
+	// 	headers: {},
+	//	body: 'hello'
+	//}
+
+	socket.emit('/echo', {
+		method: 'GET',
+		headers: { 'X-Uppercase': true },
+		body: 'hello'
+	});
+	// response: {
+	// 	status: 200,
+	// 	headers: { 'X-Was-Uppercased': true },
+	//	body: 'HELLO'
+	//}
+
+	socket.emit('/hello/data', {
+		method: 'GET',
+		headers: {},
+		body: { user: 'admin' }
+	});
+	// response: {
+	// 	status: 200,
+	// 	headers: {},
+	//	body: 'the data'
+	//}
+
+	socket.emit('/hello/data', {
+		method: 'GET',
+		headers: {},
+		body: { user: 'elliot' }
+	});
+	// response: {
+	// 	status: 403,
+	// 	headers: {},
+	//	body: 'Forbidden: wrong user'
+	//}
+</script>
+```
 
 # Socket Event API
 fresh-socketio-router establishes a transactional protocol for SocketIo events.
@@ -44,6 +158,20 @@ All responses have the following format.
 	body (number/string/object)
 }
 ```
+
+# API
+
+## `FreshSocketIoRouter(router, options)`
+Constructor.
+
+Parameters:
+ - `router`: A router constructed with `FreshSocketIoRouter.Router()`.
+ - `options` (optional): Object with optional properties:
+   - `silent`: If truthy, won't print warnings or errors to stderr.
+   - `env`: Environment. If set to 'production', will send a generic HTTP status code on 500 errors, instead of a stack trace.
+            Default uses the value from the environment variable `$NODE_ENV`
+   - `onerror`: Callback function with signature `onerror(err)`. Executed when a request gets to the end of the middleware stack without being handled.
+                Default action: `console.error(err.stack || err.toString());`
 
 # Request
 
