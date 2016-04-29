@@ -14,6 +14,8 @@ Express 5.0 uses for its routing. See the Express documentation for routing deta
     - [Client](#client)
  - [Socket Event API](#socket-event-api)
  - [Server API](#server-api)
+ - [Contributing](#contributing)
+ - [License](#license)
 
 
 # Installation
@@ -293,4 +295,14 @@ res.send() are ignored.
 
 ### res.json(body)
 Alias of res.send()
+
+# Contributing
+
+Add your changes to a new branch. Don't forget to write unit tests.
+
+When your branch is ready, make a pull request.
+
+# License
+
+MIT License
 
