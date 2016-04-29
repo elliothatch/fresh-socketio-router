@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/elliothatch/fresh-socketio-router.svg?branch=master)](https://travis-ci.org/elliothatch/fresh-socketio-router)
+[![Coverage Status](https://coveralls.io/repos/github/elliothatch/fresh-socketio-router/badge.svg?branch=master)](https://coveralls.io/github/elliothatch/fresh-socketio-router?branch=master)
 # fresh-socketio-router
 ## a middleware based router for socketio transactions
 
