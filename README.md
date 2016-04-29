@@ -1,6 +1,28 @@
 # fresh-socketio-router
 ## a middleware based router for socketio transactions
 
+fresh-socketio-router is a [Socket.Io](http://socket.io/) middleware that emulates [Express](http://expressjs.com/) routing.
+Socket events are modeled as transactions, and they look a lot like HTTP requests/responses.
+
+Routing is achieved with [pillarjs/router](https://github.com/pillarjs/router), the same library
+Express 5.0 uses for its routing. See the Express documentation for routing details.
+
+# Topics
+ - [Installation](#installation)
+ - [Usage](#usage)
+    - [Server](#server)
+    - [Client](#client)
+ - [Socket Event API](#socket-event-api)
+ - [Server API](#server-api)
+
+
+# Installation
+
+```bash
+$ npm install fresh-socketio-router
+```
+
+
 # Usage
 
 ## Server
@@ -69,6 +91,9 @@ io.use(freshSocketRouter(myRouter));
 	socket.on('/hello/data', function (res) {
 		// ...
 	});
+	socket.on('/fake', function (res) {
+		// ...
+	});
 
 	socket.emit('/echo', {
 		method: 'GET',
@@ -78,8 +103,8 @@ io.use(freshSocketRouter(myRouter));
 	// response: {
 	// 	status: 200,
 	// 	headers: {},
-	//	body: 'hello'
-	//}
+	// 	body: 'hello'
+	// }
 
 	socket.emit('/echo', {
 		method: 'GET',
@@ -89,8 +114,8 @@ io.use(freshSocketRouter(myRouter));
 	// response: {
 	// 	status: 200,
 	// 	headers: { 'X-Was-Uppercased': true },
-	//	body: 'HELLO'
-	//}
+	// 	body: 'HELLO'
+	// }
 
 	socket.emit('/hello/data', {
 		method: 'GET',
@@ -100,8 +125,8 @@ io.use(freshSocketRouter(myRouter));
 	// response: {
 	// 	status: 200,
 	// 	headers: {},
-	//	body: 'the data'
-	//}
+	// 	body: 'the data'
+	// }
 
 	socket.emit('/hello/data', {
 		method: 'GET',
@@ -111,8 +136,19 @@ io.use(freshSocketRouter(myRouter));
 	// response: {
 	// 	status: 403,
 	// 	headers: {},
-	//	body: 'Forbidden: wrong user'
-	//}
+	// 	body: 'Forbidden: wrong user'
+	// }
+
+	socket.emit('/fake', {
+		method: 'GET',
+		headers: {},
+		body: {}
+	});
+	// response: {
+	// 	status: 404,
+	// 	headers: {},
+	// 	body: 'Cannot GET /fake'
+	// }
 </script>
 ```
 
@@ -121,13 +157,15 @@ fresh-socketio-router establishes a transactional protocol for SocketIo events.
 Transactions are modeled after HTTP, but many of the HTTP fields are optional.
 Note that requests and responses are serialized to JSON. A binary protocol may be added in the future.
 
+## Request
+
 All events emitted by the client to a handled route must contain undefined or an object, with
 the optional properties:
 
 ```
 {
 	method (string:HTTP Method): default='GET',
-	headers (object--name-value string pairs)=undefined,
+	headers (object:name-value string pairs): default=undefined,
 	body (number/string/object): default=undefined
 }
 ```
@@ -150,16 +188,18 @@ and incremented by 1 for every new request.
 A request may either receive exactly one response as an event emitted to the same
 url that the request was emitted to, or will time out.
 
+## Response
+
 All responses have the following format.
 ```
 {
 	status (number:HTTP Status),
-	headers (object--name-value string pairs),
+	headers (object:name-value string pairs),
 	body (number/string/object)
 }
 ```
 
-# API
+# Server API
 
 ## `FreshSocketIoRouter(router, options)`
 Constructor.
@@ -167,11 +207,16 @@ Constructor.
 Parameters:
  - `router`: A router constructed with `FreshSocketIoRouter.Router()`.
  - `options` (optional): Object with optional properties:
+   - `ignoreList`: Array of routes that should not be processed by the framework. Any valid routes can be used. This is achieved
+by injecting a no-op handler before user middleware is installed, using `router.all(ignoreList, ...)`.
    - `silent`: If truthy, won't print warnings or errors to stderr.
-   - `env`: Environment. If set to 'production', will send a generic HTTP status code on 500 errors, instead of a stack trace.
-            Default uses the value from the environment variable `$NODE_ENV`
+   - `env`: Environment string. If set to 'production', will send a generic HTTP status code on 500 errors, instead of a stack trace.
+Default uses the value from the environment variable `$NODE_ENV`
    - `onerror`: Callback function with signature `onerror(err)`. Executed when a request gets to the end of the middleware stack without being handled.
-                Default action: `console.error(err.stack || err.toString());`
+Default action: `console.error(err.stack || err.toString());`
+
+## `FreshSocketIoRouter.Router()`
+Construct a new Router object. See [pillarjs/router](https://github.com/pillarjs/router) or Express documentation.
 
 # Request
 

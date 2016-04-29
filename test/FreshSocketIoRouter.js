@@ -1,5 +1,6 @@
 
 var expect = require('chai').expect;
+var assert = require('chai').assert;
 
 var BPromise = require('bluebird');
 
@@ -26,7 +27,7 @@ describe('FreshSocketIoRouter', function() {
 	});
 
 	it('should route correctly with a single router', function() {
-		var routes = ['/test1', '/test2/a', 'test2/b', 'test2/c'];
+		var routes = ['/test1', '/test2/a', '/test2/b', '/test2/c'];
 		var statusVals = [200, 202, null, 201];
 		var dataVals = [null, 1, { a: 1, b: 'b', c: { a: 'ca' }}, 'd'];
 		var a1 = 'a1';
@@ -486,6 +487,191 @@ describe('FreshSocketIoRouter', function() {
 						method: 'GET',
 						headers: {'X-Fresh-Request-Id': '3'},
 						body: { user: 'elliot'}
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					socket.on('/fake', function(res) {
+						if(res.headers['X-Fresh-Request-Id'] === '4') {
+							expect(res).to.deep.equal({
+								status: 404,
+								headers: {'X-Fresh-Request-Id': '4'},
+								body: 'Cannot GET /fake'
+							});
+							resolve();
+						}
+					});
+					socket.emit('/fake', {
+						method: 'GET',
+						headers: {'X-Fresh-Request-Id': '4'},
+						body: {}
+					});
+				})
+			]);
+		});
+	});
+	it('should not execute middleware for routes on the ignoreList', function() {
+		var waitTime = 200; //time to delay "success" events, to allow for rejections to happen first.
+		// waitTime=0 seems to work, probably because the "setTimeout" delays the event loop or something. using 200 just to be safe.
+		var socketRouter = freshSocketRouter.Router();
+
+		var error;
+		var ignoreList = ['/test1', '/test2', '/test2/*', '/test3/:id'];
+		socketRouter.all(ignoreList, function(req, res, next) {
+			try {
+				assert.fail(0,1, 'Middleware was executed on ignored route \'' + req.originalUrl + '\'');
+			}
+			catch(e) {
+				error = e;
+				throw e;
+			}
+		});
+
+		socketRouter.all('/test1/a', function(req, res) {
+			res.status(200).send('a');
+		});
+
+		socketRouter.all('/test3', function(req, res) {
+			res.status(200).send('t3');
+		});
+
+		socketRouter.all('/test3/:id/hello', function(req, res) {
+			res.status(200).send('t3h');
+		});
+
+
+		
+		var options = { silent: true, ignoreList: ignoreList };
+		io.use(freshSocketRouter(socketRouter, options));
+		// register emitters outside socketRouter
+		io.on('connection', function(socket) {
+			socket.on('/test1', function(data) {
+				socket.emit('/got-test1', 't1');
+			});
+			socket.on('/test2', function(data) {
+				socket.emit('/got-test2', 't2');
+			});
+			socket.on('/test2/hello', function(data) {
+				socket.emit('/got-test2/hello', 't2h');
+			});
+			socket.on('/test3/abc', function(data) {
+				socket.emit('/got-test3/abc', 't3a');
+			});
+		});
+
+		var client = ioClient(ipAddress);
+		return new BPromise(function(resolve, reject) {
+			client.on('connect', function() {
+				resolve();
+			});
+		}).then(function() {
+			return BPromise.all([
+				new BPromise(function(resolve, reject) {
+					client.on('/got-test1', function(data) {
+						expect(data).to.deep.equal('t1');
+						setTimeout(function() {
+							resolve();
+						}, waitTime);
+					});
+					client.on('/test1', function(data) {
+						reject(error);
+					});
+					client.emit('/test1', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/test1/a', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'a'
+						});
+						resolve();
+					});
+					client.emit('/test1/a', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/got-test2', function(data) {
+						expect(data).to.deep.equal('t2');
+						setTimeout(function() {
+							resolve();
+						}, waitTime);
+					});
+					client.on('/test2', function(data) {
+						reject(error);
+					});
+					client.emit('/test2', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/got-test2/hello', function(data) {
+						expect(data).to.deep.equal('t2h');
+						setTimeout(function() {
+							resolve();
+						}, waitTime);
+					});
+					client.on('/test2/hello', function(data) {
+						reject(error);
+					});
+					client.emit('/test2/hello', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/test3', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 't3'
+						});
+						resolve();
+					});
+					client.emit('/test3', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/got-test3/abc', function(data) {
+						expect(data).to.deep.equal('t3a');
+						setTimeout(function() {
+							resolve();
+						}, waitTime);
+					});
+					client.on('/test3/abc', function(data) {
+						reject(error);
+					});
+					client.emit('/test3/abc', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/test3/abc/hello', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 't3h'
+						});
+						resolve();
+					});
+					client.emit('/test3/abc/hello', {
+						method: 'GET',
+						headers: {},
+						body: 'aaa'
 					});
 				})
 			]);
