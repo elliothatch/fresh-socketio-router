@@ -6,3 +6,8 @@ node_js:
 - '0.10'
 before_install: npm install -g grunt-cli
 after_success: npm run coveralls
+deploy:
+  api_key:
+    secure: lZ3p3HEjj8RnTfIZUTBbfGl0QM4VkWdWP81COSR7z3mpWgXo6nifI2RjmYx5YZ2mjROGqNkpAaUlmurED6EELMSR9QBI7qq1AEYAGxRBLh046YE5BJhYWLZNWQhNOXx8iergZHCByO81NW+ji2r7gKcP67qGwJF2OQwKkpFGN8zm4JhRGn6cxpHO+wqMdYEeSHrhStsyYOTRiTCb9q70amENeF2NcA4HxAsTuOuhlqMGRAf9rY+M0SQqVTZ5B5mzgUw1PmQ3Rd3YR+VDoWm9yCkFV3pNN/P4L8Q+wTLa1jgFhNxagmOsyuY4ZIGlKwpSKSMJ8RFjIklbxpB78H9/O312fh99xDTOsNPv+sXnyn43h+8b5hAcQlTyAfQAUeDtfuJY+Y76rWnN/Cr8YI1QtCWkqPeGOOadKj/RB57Oyf6pYEU+a07vKxEjP+AIesHh1iA8vxA9kkqQf9TE1CrbtTA2YYCBIJvGkcoAuqvC1+DIy2nMKMYCDWKg9AJAhFSrbumF1Z7sQEbS9S55HIsscQD+xKAuiJ6iUqTHf2k2Yrl7II4aLNRq1scJvPQHe7yh13zg5ZI0/oQfaac/lB0GklOsdglCCgE2nkypF9FIJzoqqm6tCG/nXpRfp4ld/qUH5xIugSHvw89B4MNBkrgY1NYWZMPynSbebZmuluj8Ylg=
+  on:
+      tags: true

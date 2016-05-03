@@ -3,7 +3,7 @@
 # fresh-socketio-router
 ## a middleware based router for socketio transactions
 
-fresh-socketio-router is a [Socket.Io](http://socket.io/) middleware that emulates [Express](http://expressjs.com/) routing.
+fresh-socketio-router is a [Socket.Io](http://socket.io/) middleware that emulates [Express](http://expressjs.com/) routing for Node.js websocket servers.
 Socket events are modeled as transactions, and they look a lot like HTTP requests/responses.
 
 Routing is achieved with [pillarjs/router](https://github.com/pillarjs/router), the same library
@@ -18,6 +18,7 @@ Express 5.0 uses for its routing. See the Express documentation for routing deta
  - [Example](#example)
     - [Server](#server)
     - [Client](#client)
+ - [Todo](#todo)
  - [Contributing](#contributing)
  - [License](#license)
 
@@ -332,6 +333,9 @@ io.use(freshSocketRouter(myRouter));
 	// }
 </script>
 ```
+
+# Todo
+ - Add "strict" option that responds to poorly formatted requests with 400.
 
 # Contributing
 

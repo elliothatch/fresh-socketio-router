@@ -1,6 +1,6 @@
 {
   "name": "fresh-socketio-router",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "a middleware based router for socketio transactions",
   "scripts": {
     "test": "grunt test",
@@ -44,6 +44,7 @@
     }
   },
   "dependencies": {
+    "qs": "^6.1.0",
     "router": "^1.1.4"
   }
 }

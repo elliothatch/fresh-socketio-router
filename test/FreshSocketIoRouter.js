@@ -1,4 +1,3 @@
-
 var expect = require('chai').expect;
 var assert = require('chai').assert;
 
@@ -672,6 +671,101 @@ describe('FreshSocketIoRouter', function() {
 						method: 'GET',
 						headers: {},
 						body: 'aaa'
+					});
+				})
+			]);
+		});
+	});
+	it('should work with poorly formatted requests', function() {
+		var socketRouter = freshSocketRouter.Router();
+		socketRouter.use('/test/:id', function(req, res, next) {
+			res.status(200).send('hello ' + req.params.id);
+		});
+		io.use(freshSocketRouter(socketRouter));
+		var client = ioClient(ipAddress);
+		return new BPromise(function(resolve, reject) {
+			client.on('connect', function() {
+				resolve();
+			});
+		}).then(function() {
+			return BPromise.all([
+				new BPromise(function(resolve, reject) {
+					client.on('/test/1', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello 1'
+						});
+						resolve();
+					});
+					client.emit('/test/1', {});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/test/2', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello 2'
+						});
+						resolve();
+					});
+					client.emit('/test/2', undefined);
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/test/3', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello 3'
+						});
+						resolve();
+					});
+					client.emit('/test/3', 2);
+				})
+			]);
+		});
+	});
+	it('should work with query string parameters', function() {
+		var socketRouter = freshSocketRouter.Router();
+		socketRouter.use('/test/:id', function(req, res, next) {
+			res.status(200).send('hello ' + req.query.id);
+		});
+		io.use(freshSocketRouter(socketRouter));
+		var client = ioClient(ipAddress);
+		return new BPromise(function(resolve, reject) {
+			client.on('connect', function() {
+				resolve();
+			});
+		}).then(function() {
+			return BPromise.all([
+				new BPromise(function(resolve, reject) {
+					client.on('/test/1', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello undefined'
+						});
+						resolve();
+					});
+					client.emit('/test/1?', {
+						method: 'GET',
+						headers: {},
+						body: undefined
+					});
+				}),
+				new BPromise(function(resolve, reject) {
+					client.on('/test/2', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello elliot'
+						});
+						resolve();
+					});
+					client.emit('/test/2?id=elliot', {
+						method: 'GET',
+						headers: {},
+						body: undefined
 					});
 				})
 			]);
