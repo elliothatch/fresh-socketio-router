@@ -771,4 +771,45 @@ describe('FreshSocketIoRouter', function() {
 			]);
 		});
 	});
+	it('should have the response emit \'finish\' when res.send is called', function() {
+		var socketRouter = freshSocketRouter.Router();
+		var finishPromise;
+		socketRouter.use(function(req, res, next) {
+			finishPromise = new Promise(function(resolve, reject) {
+				res.on('finish', function() {
+					resolve();
+				});
+			});
+			next();
+		});
+		socketRouter.use('/test', function(req, res, next) {
+			res.status(200).send('hello ' + req.body);
+		});
+		io.use(freshSocketRouter(socketRouter));
+		var client = ioClient(ipAddress);
+		return new BPromise(function(resolve, reject) {
+			client.on('connect', function() {
+				resolve();
+			});
+		}).then(function() {
+			return BPromise.all([
+				new BPromise(function(resolve, reject) {
+					client.on('/test', function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello hi'
+						});
+						resolve();
+					});
+					client.emit('/test', {
+						method: 'GET',
+						headers: {},
+						body: 'hi'
+					});
+				}),
+				finishPromise
+			]);
+		});
+	});
 });

@@ -1,6 +1,6 @@
 {
   "name": "fresh-socketio-router",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a middleware based router for socketio transactions",
   "scripts": {
     "test": "grunt test",
@@ -36,7 +36,7 @@
     "travis-cov": "~0.2.5"
   },
   "engines": {
-    "node": ">=0.10"
+    "node": ">=0.11"
   },
   "config": {
     "travis-cov": {

@@ -158,6 +158,9 @@ The headers value from req.message. Use req.get() to retrieve header values.
 ### req.body
 The body of the request, from req.body.
 
+### req.ip
+IP address of the client socket.
+
 ### req.res
 Handle to the response object associated with this request.
 
@@ -204,6 +207,12 @@ res.send() are ignored.
 
 ### res.json(body)
 Alias of res.send()
+
+## Events
+
+### 'finish'
+Emitted the first time res.send is called, after the server has sent the message
+to the socket. Does not imply that the client has received anything yet.
 
 # Example
 
@@ -336,6 +345,8 @@ io.use(freshSocketRouter(myRouter));
 
 # Todo
  - Add "strict" option that responds to poorly formatted requests with 400.
+ - Implement SocketIoResponse 'close' event.
+ - Implement relevant SocketIoRequest events.
 
 # Contributing
 

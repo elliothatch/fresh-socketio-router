@@ -2,6 +2,10 @@
 
 ## 0.1
 
+### 0.1.2 - 5-8-16
+ - Made request and response objects inherit from EventEmitter. Response emits 'final' event when res.send is called.
+ - Added req.ip
+
 ### 0.1.1 - 5-2-16
  - No longer crashes if recieved message is not an object
  - Added support for query strings. Query strings don't affect the URL that responses are emitted to.
