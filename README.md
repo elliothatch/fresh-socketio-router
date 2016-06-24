@@ -180,12 +180,16 @@ Alias of req.get().
 Contains the SocketIo socket this response is directed toward. See SocketIo docs for details.
 
 ### res.headers
-Response headers. Use req.set() to set header values.
+Response headers. Use res.set() to set header values.
 
 ### res.statusCode
 
 For internal use. HTTP status code currently set on the response. Default=200, but overridden if
 an error occurs or the route is fully processed without sending a response.
+
+### res.message
+
+The JSON payload sent to the client. Null until res.send() is called on this res.
 
 ### res.req
 Handle to the request object associated with this response.

@@ -2,6 +2,9 @@
 
 ## 0.1
 
+### 0.1.3 - 6-24-16
+ - Added res.message--the message object sent as the payload when res.send() is called
+
 ### 0.1.2 - 5-8-16
  - Made request and response objects inherit from EventEmitter. Response emits 'final' event when res.send is called.
  - Added req.ip
