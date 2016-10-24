@@ -184,7 +184,7 @@ describe('FreshSocketIoRouter', function() {
 		socketRouter.use('/a', aRouter);
 
 		io.use(freshSocketRouter(socketRouter));
-		
+
 		var client = ioClient(ipAddress);
 		return new BPromise(function(resolve, reject) {
 			client.on('connect', function() {
@@ -538,7 +538,7 @@ describe('FreshSocketIoRouter', function() {
 		});
 
 
-		
+
 		var options = { silent: true, ignoreList: ignoreList };
 		io.use(freshSocketRouter(socketRouter, options));
 		// register emitters outside socketRouter
@@ -806,6 +806,46 @@ describe('FreshSocketIoRouter', function() {
 						method: 'GET',
 						headers: {},
 						body: 'hi'
+					});
+				}),
+				finishPromise
+			]);
+		});
+	});
+	it('should have the response call the ack function when res.send is called', function() {
+		var socketRouter = freshSocketRouter.Router();
+		var finishPromise;
+		socketRouter.use(function(req, res, next) {
+			finishPromise = new Promise(function(resolve, reject) {
+				res.on('finish', function() {
+					resolve();
+				});
+			});
+			next();
+		});
+		socketRouter.use('/test', function(req, res, next) {
+			res.status(200).send('hello ' + req.body);
+		});
+		io.use(freshSocketRouter(socketRouter));
+		var client = ioClient(ipAddress);
+		return new BPromise(function(resolve, reject) {
+			client.on('connect', function() {
+				resolve();
+			});
+		}).then(function() {
+			return BPromise.all([
+				new BPromise(function(resolve, reject) {
+					client.emit('/test', {
+						method: 'GET',
+						headers: {},
+						body: 'hi'
+					}, function(data) {
+						expect(data).to.deep.equal({
+							status: 200,
+							headers: {},
+							body: 'hello hi'
+						});
+						resolve();
 					});
 				}),
 				finishPromise
