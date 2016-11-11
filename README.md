@@ -63,7 +63,7 @@ socket.emit('/hello', {
 
 Response:
 ```js
-socket.on('/echo', function(res) {
+socket.on('/hello', function(res) {
 	// res: {
 	// 	status: 200,
 	// 	headers: {},
@@ -142,7 +142,7 @@ The url of the currently handled request. Some routing functions rewrite this, s
 ### req.originalUrl
 This property is much like req.url; however, it retains the original request
 URL, allowing you to rewrite req.url freely for internal routing purposes. For
-example, the ìmountingî feature of app.use() will rewrite req.url to strip the
+example, the ‚Äúmounting‚Äù feature of app.use() will rewrite req.url to strip the
 mount point.
 
 ### req.message
@@ -200,7 +200,7 @@ Handle to the request object associated with this response.
 Sets the HTTP status for the response.
 
 ### res.set(field, value)
-Sets the responseís HTTP header field to value.
+Sets the response‚Äôs HTTP header field to value.
 
 ### res.header(field, value)
 Alias of res.set()
